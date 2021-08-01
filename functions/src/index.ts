@@ -22,7 +22,6 @@ export const fetchBookInfo = functions.https.onRequest(
       const doc = await db.collection('books').doc(query).get()
 
       const bookInfo = doc.data()
-      console.log('bookInfo', bookInfo)
       response.send(bookInfo)
     } catch (error) {
       console.log(error)
