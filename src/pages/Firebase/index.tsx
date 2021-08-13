@@ -13,15 +13,6 @@ export default function Chakra() {
           Get started by editing{' '}
           <Text backgroundColor="gray.100">pages/Firebase/index.tsx</Text>
         </Box>
-        
-        <Box p="10px" mt="30px" border="1px" borderRadius="5px">
-          <Link href="/Firebase/Auth">
-            <a>
-              <h2>Auth &rarr;</h2>
-              <p>Practice firebase auth :)</p>
-            </a>
-          </Link>
-        </Box>
 
         <Box p="10px" mt="10px" border="1px" borderRadius="5px">
           <Link href="/Firebase/CloudStorage">

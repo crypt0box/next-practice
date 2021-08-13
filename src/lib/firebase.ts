@@ -1,5 +1,6 @@
 import firebase from "firebase/app";
 import "firebase/auth"; // If you need it
+import "firebase/storage"; // If you need it
 
 export const config = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -13,6 +14,7 @@ export const config = {
 !firebase.apps.length ? firebase.initializeApp(config) : firebase.app();
 
 export const auth = firebase.auth();
+export const storage = firebase.storage();
 export const Firebase = firebase;
 
 export const Login = () => {
