@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Firebase, storage } from '../../lib/firebase'
+import { Firebase, storage, db, auth } from '../../lib/firebase'
 import {
   Flex,
   Box,
@@ -21,10 +21,11 @@ const CloudStorage = () => {
   const [loacalImage, setLocalImage] = useState<string>()
   const [image, setImage] = useState<File>()
   const [imageUrl, setImageUrl] = useState('')
-  console.log("CloudStorage -> imageUrl", imageUrl)
+  const userRef = db.collection('users').doc(`${auth.currentUser?.uid}`)
+
   const handleImage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const imageFile = event.target.files?.[0]
-    const localImageUrl = URL.createObjectURL(imageFile);
+    const localImageUrl = URL.createObjectURL(imageFile)
     setImage(imageFile)
     setLocalImage(localImageUrl)
   }
@@ -35,7 +36,10 @@ const CloudStorage = () => {
       return
     }
     // アップロード処理
-    const uploadTask = storage.ref(`/images/${image.name}`).put(image)
+    if (!auth.currentUser) return
+    const uploadTask = storage
+      .ref(`/images/${auth.currentUser.uid}/${image.name}`)
+      .put(image)
     uploadTask.on(
       Firebase.storage.TaskEvent.STATE_CHANGED,
       next,
@@ -57,13 +61,22 @@ const CloudStorage = () => {
   const complete = () => {
     // 完了後の処理
     // 画像表示のため、アップロードした画像のURLを取得
-    if (!image) return
+    if (!image || !auth.currentUser) return
     storage
-      .ref('images')
+      .ref(`images/${auth.currentUser.uid}`)
       .child(image.name)
       .getDownloadURL()
       .then((fireBaseUrl) => {
+        userRef.set(
+          {
+            image: [`${fireBaseUrl}`],
+          },
+          { merge: true }
+        )
         setImageUrl(fireBaseUrl)
+      })
+      .catch((error) => {
+        console.log('CloudStorage.tsx Error', error)
       })
   }
   return (
@@ -75,7 +88,9 @@ const CloudStorage = () => {
           <Input hidden type="file" accept="image/*" onChange={handleImage} />
         </FormControl>
         <Button onClick={handleSubmit}>SUBMIT</Button>
-        {loacalImage && <Image src={loacalImage} w="400px" h="360px" objectFit="contain" />}
+        {loacalImage && (
+          <Image src={loacalImage} w="400px" h="360px" objectFit="contain" />
+        )}
       </Box>
     </Flex>
   )
