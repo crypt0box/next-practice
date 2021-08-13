@@ -1,6 +1,7 @@
 import firebase from "firebase/app";
 import "firebase/auth"; // If you need it
 import "firebase/storage"; // If you need it
+import "firebase/firestore"; // If you need it
 
 export const config = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -15,7 +16,10 @@ export const config = {
 
 export const auth = firebase.auth();
 export const storage = firebase.storage();
+export const db = firebase.firestore();
 export const Firebase = firebase;
+
+const userRef = db.collection('users');
 
 export const Login = () => {
   const provider = new firebase.auth.GoogleAuthProvider();
@@ -23,6 +27,12 @@ export const Login = () => {
     .auth()
     .signInWithPopup(provider)
     .then(function (result: any) {
+      userRef.doc(result.user.uid).set({
+        userId: result.user.uid,
+        displayName: result.user.displayName,
+        emmail: result.user.email,
+        photoUrl: result.user.photoURL || '',
+      })
       return result;
     })
     .catch(function (error) {
